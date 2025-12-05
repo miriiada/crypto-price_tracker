@@ -42,36 +42,42 @@ def save_prices(coins_data):
 
     for coin in coins_data:
         cursor.execute('''
-        INSERT INTO prices (coin_id, coin_name, symbol, price_usd, market_cap, volume_24h, price_change_24h)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-        ''', (
-            coin['id'],
-            coin['name'],
-            coin['symbol'],
-            coin['current_price'],
-            coin['market_cap'],
-            coin['total_volume'],
-            coin['price_change_percentage_24h']
-        ))
+                        INSERT INTO prices (coin_id, coin_name, symbol, price_usd, market_cap, volume_24h, price_change_24h)
+                        VALUES (?, ?, ?, ?, ?, ?, ?)
+                        ''', (
+                            coin['id'],
+                            coin['name'],
+                            coin['symbol'],
+                            coin['current_price'],
+                            coin['market_cap'],
+                            coin['total_volume'],
+                            coin['price_change_percentage_24h']
+                        ))
         saved_count += 1
 
-        print(f"✓ Saved {saved_count} records in the database")
-        return saved_count
+    conn.commit()
+    conn.close()
 
-def get_lastest_prices(limit=10):
+    print(f"✓ Saved {saved_count} records in the database")
+    return saved_count
+
+def get_latest_prices(limit=10):
     """Get last from database"""
     conn = sqlite3.connect(DATABASE)
     cursor = conn.cursor()
 
     cursor.execute('''
-    SELECT coin_name, price_usd, price_change_24h, timestemp
-    FROM prices
-    ORDER BY timestep DESC
-    LIMIT ?
-    ''', (limit,))
+                    SELECT coin_name, price_usd, price_change_24h, timestemp
+                    FROM prices
+                    ORDER BY timestep DESC
+                    LIMIT ?
+                    ''', (limit,))
 
-    result = cursor.fetchall()
+    results = cursor.fetchall()
     conn.close()
+
+    return results
+
 
 def get_price_history(coin_id, hours=24):
     """Get history price a specific coin for N hours"""
@@ -79,12 +85,12 @@ def get_price_history(coin_id, hours=24):
     cursor = conn.cursor()
 
     cursor.execute('''
-    SELECT price_usd, timestamp
-    FROM prices
-    WHERE coin_ID = ?
-    AND timestamp >= datetime('now', '-' || ? || ' hours')
-    ORDER BY timestamp ASC
-    ''', (coin_id, hours))
+                    SELECT price_usd, timestamp
+                    FROM prices
+                    WHERE coin_ID = ?
+                    AND timestamp >= datetime('now', '-' || ? || ' hours')
+                    ORDER BY timestamp ASC
+                    ''', (coin_id, hours))
 
     results = cursor.fetchall()
     conn.close()
@@ -119,9 +125,9 @@ def fetch_crypto_data():
 
 def display_current_prices(coins_data):
     """Display the current price Beautifully"""
-    print("\n" + "="*70)
-    print(f"{'COIN':<20} {'PRICE (USD)':<15}")
-    print("="*70)
+    print("\n" + "=" * 70)
+    print(f"{'COIN':<20} {'PRICE (USD)':<15} {'CHANGE 24h':<15}")
+    print("=" * 70)
 
     for coin in coins_data[:10]: # Show top-10
         name = coin['name']
@@ -133,7 +139,7 @@ def display_current_prices(coins_data):
 
         print(f"{name:<20} ${price:<14,.2f} {change_symbol} {change:>6.2f}%")
 
-    print("="*70 + "\n")
+    print("=" * 70 + "\n")
 
 def display_history(coin_id='bitcoin'):
     """Show history price coin"""
@@ -158,23 +164,24 @@ def display_history(coin_id='bitcoin'):
         print("-" * 50)
         print(f"Change: {change:+.2f}% (${first_price:,.2f} → ${last_price:,.2f}")
 
-        print()
+    print()
 
 # ================= MAIN ====================
 
 def main():
-    print("\n🚀 Crypto Price Tranker v0.2")
+    print("\n🚀 Crypto Price Tracker v0.2")
     print(f"⏰ Start: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
 
     # 1. initialization DB
     init_database()
 
     # 2. Get DATA for API
-    print("n\📡 Get DATA for CoinGecko...")
+    print("\n📡 Get DATA for CoinGecko...")
     coins_data = fetch_crypto_data()
 
     if not coins_data:
         print("Can't get data. End connect.")
+        return
 
     # 3. Show price now
     display_current_prices(coins_data)
