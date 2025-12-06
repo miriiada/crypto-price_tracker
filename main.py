@@ -2,6 +2,8 @@ import requests
 import sqlite3
 from datetime import datetime
 import time
+import csv
+import json
 
 # ============== SETTINGS =================
 API_URL = 'https://api.coingecko.com/api/v3/coins/markets'
@@ -165,6 +167,41 @@ def display_history(coin_id='bitcoin'):
         print(f"Change: {change:+.2f}% (${first_price:,.2f} → ${last_price:,.2f}")
 
     print()
+
+# ================== ANALYTICS FUNCTION ===================
+
+def get_coin_statistics(coin_id, hours=24):
+    """Get statistics on a coin for a period"""
+    history = get_price_history(coin_id, hours)
+
+    if not history:
+        return None
+
+    price = [price for price, timestamp in history]
+
+    stats = {
+        'coin_id': coin_id,
+        'period_hours': hours,
+        'data_points': len(prices),
+        'current_price': prices[-1],
+        'avg_price': sum(prices) / len(prices),
+        'min_price': min(prices),
+        'max_price': max(prices),
+        'price_change': prices[-1] - prices[0],
+        'price_change_percent': ((prices[-1] - prices[0]) / prices[0]) * 100 if prices[0] != 0 else 0,
+        'volatility': max(prices) - min(prices)
+    }
+
+    return stats
+
+def display_statistics(coin_id='bitcoin', hours=24):
+    """Beautiful show statistics"""
+    stats = get_coin_statistics(coin_id, hours)
+
+    if not stats:
+        print(f"\n📊 STATISTICS: {coin_id.unpper()}")
+        print(f"⏰ Period")
+
 
 # ================= MAIN ====================
 
