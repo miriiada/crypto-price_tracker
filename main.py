@@ -213,7 +213,47 @@ def display_statistics(coin_id='bitcoin', hours=24):
 
 # ================ EXPORT FUNCTIONS =====================
 
-def export_to_csv(coin_id, hours=24, filename=None)
+def export_to_csv(coin_id, hours=24, filename=None):
+    """Export history in CSV"""
+    history = get_price_history(coin_id, hours)
+
+    if not history
+        print("No data for export")
+        return
+
+    if not filename:
+        filename = f"{coin_id}_history_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+
+    with open(filename, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow(['Price USD', 'Timestamp'])
+        writer.writerows(history)
+
+    print(f"✓ Exporting in {filename}")
+    return filename
+
+def export_to_json(coin_id, hours=24, filename=None):
+    """Export statistic in JSON"""
+    stats = get_coin_statistics(coin_id, hours)
+    history = get_price_history(coin_id, hours)
+
+    if not filename:
+        filename = f" {coin_id}_stats_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+
+        data = {
+            'statistics': stats,
+            'history': [
+                {'price': price, 'timestamp': timestamp}
+                for price, timestamp in history
+            ]
+        }
+
+        with open(filename, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=4, ensure_ascii=False)
+
+        print(f"✓ Exporting if {filename}")
+        return filename
+
 
 
 # ================= MAIN ====================
