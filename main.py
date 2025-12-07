@@ -200,7 +200,20 @@ def display_statistics(coin_id='bitcoin', hours=24):
 
     if not stats:
         print(f"\n📊 STATISTICS: {coin_id.unpper()}")
-        print(f"⏰ Period")
+        print(f"⏰ Period: {hours} hours")
+        print(f"📈 Dot stats: {stats['data_points']}")
+        print("-" * 50)
+        print(f"Current price:      ${stats['current_price']:,.2f}")
+        print(f"Avg price:          ${stats['avg_price']:,.2f}")
+        print(f"Min:                ${stats['min_price']:,.2f}")
+        print(f"Max:                ${stats['max_price']:,.2f}")
+        print(f"Change:             ${stats['price_change']:+,.2f} ({stats['price_change_percent']:+.2f}%)")
+        print(f"Volatility:         ${stats['volatility']:,.2f}")
+        print("-" * 50 + "\n")
+
+# ================ EXPORT FUNCTIONS =====================
+
+def export_to_csv(coin_id, hours=24, filename=None)
 
 
 # ================= MAIN ====================
