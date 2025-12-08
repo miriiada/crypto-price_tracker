@@ -194,12 +194,16 @@ def get_coin_statistics(coin_id, hours=24):
 
     return stats
 
+
 def display_statistics(coin_id='bitcoin', hours=24):
     """Beautiful show statistics"""
     stats = get_coin_statistics(coin_id, hours)
 
     if not stats:
-        print(f"\n📊 STATISTICS: {coin_id.unpper()}")
+        print(f"\n️⚠️ insufficient data for {coin_id}")
+        print(f"💡 ")
+
+        print(f"\n📊 STATISTICS: {coin_id.upper()}")
         print(f"⏰ Period: {hours} hours")
         print(f"📈 Dot stats: {stats['data_points']}")
         print("-" * 50)
@@ -217,7 +221,7 @@ def export_to_csv(coin_id, hours=24, filename=None):
     """Export history in CSV"""
     history = get_price_history(coin_id, hours)
 
-    if not history
+    if not history:
         print("No data for export")
         return
 
@@ -267,32 +271,40 @@ def main():
     parser.add_argument('--stats-only', action='store_true', help='Show only statistics')
     args = parser.parse_args()
 
-
-
-    print("\n🚀 Crypto Price Tracker v0.2")
+    print("\n🚀 Crypto Price Tracker v0.3")
     print(f"⏰ Start: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
 
-    # 1. initialization DB
+    # initialization DB
     init_database()
 
-    # 2. Get DATA for API
-    print("\n📡 Get DATA for CoinGecko...")
+    # Else only statistics
+    if args.stats_only:
+        display_statistics(args.coin, args.hours)
+        if args.export:
+            if args.export in ['CSV', 'both']:
+                export_to_csv(args.coin, args.hours)
+            if args.export in ['json', 'both']:
+                export_to_json(args.coin, args.hours)
+        return
+
+    # Base mod: Get new DATA
+    print("\n📡 Get data")
     coins_data = fetch_crypto_data()
 
     if not coins_data:
-        print("Can't get data. End connect.")
-        return
+        display_current_prices(coins_data)
+        print("💾 Saving...")
+        save_prices(coins_data)
 
-    # 3. Show price now
-    display_current_prices(coins_data)
+    # Show statistics for chosen coin
+    display_statistics(args.coin, args.hours)
 
-    # 4. Save in DB
-    print("💾 Save in DB...")
-    save_prices(coins_data)
-
-    # 5. Show history Bitcoin (Example)
-    print("\n📈 Checking history...")
-    display_history('bitcoin')
+    # Export if needed
+    if args.export:
+        if args.export in ['CSV', 'both']:
+            export_to_csv(args.coin, args.hours)
+        if args.export in ['json', 'both']:
+            export_to_json(args.coin, args.hours)
 
     print("✅ Ready!\n")
 
