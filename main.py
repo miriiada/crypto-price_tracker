@@ -254,11 +254,21 @@ def export_to_json(coin_id, hours=24, filename=None):
         print(f"✓ Exporting if {filename}")
         return filename
 
-
-
 # ================= MAIN ====================
 
 def main():
+    import argparse
+
+    # CLI arguments
+    parser = argparse.ArgumentParser(description='Crypto Price Tracker')
+    parser.add_argument('--coin', default='bitcoin', help='Coin ID (default: bitcoin)')
+    parser.add_argument('--hours', type=int, default=24, help='History period in hours')
+    parser.add_argument('--export', choices=['csv', 'json', 'both'], help='Export format')
+    parser.add_argument('--stats-only', action='store_true', help='Show only statistics')
+    args = parser.parse_args()
+
+
+
     print("\n🚀 Crypto Price Tracker v0.2")
     print(f"⏰ Start: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
 
