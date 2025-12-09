@@ -177,7 +177,7 @@ def get_coin_statistics(coin_id, hours=24):
     if not history:
         return None
 
-    price = [price for price, timestamp in history]
+    prices = [price for price, timestamp in history]
 
     stats = {
         'coin_id': coin_id,
@@ -201,19 +201,20 @@ def display_statistics(coin_id='bitcoin', hours=24):
 
     if not stats:
         print(f"\n️⚠️ insufficient data for {coin_id}")
-        print(f"💡 ")
+        print(f"💡 Advice: run script several times with an interval of 1 hour")
+        return
 
-        print(f"\n📊 STATISTICS: {coin_id.upper()}")
-        print(f"⏰ Period: {hours} hours")
-        print(f"📈 Dot stats: {stats['data_points']}")
-        print("-" * 50)
-        print(f"Current price:      ${stats['current_price']:,.2f}")
-        print(f"Avg price:          ${stats['avg_price']:,.2f}")
-        print(f"Min:                ${stats['min_price']:,.2f}")
-        print(f"Max:                ${stats['max_price']:,.2f}")
-        print(f"Change:             ${stats['price_change']:+,.2f} ({stats['price_change_percent']:+.2f}%)")
-        print(f"Volatility:         ${stats['volatility']:,.2f}")
-        print("-" * 50 + "\n")
+    print(f"\n📊 STATISTICS: {coin_id.upper()}")
+    print(f"⏰ Period: {hours} hours")
+    print(f"📈 Dot stats: {stats['data_points']}")
+    print("-" * 50)
+    print(f"Current price:      ${stats['current_price']:,.2f}")
+    print(f"Avg price:          ${stats['avg_price']:,.2f}")
+    print(f"Min:                ${stats['min_price']:,.2f}")
+    print(f"Max:                ${stats['max_price']:,.2f}")
+    print(f"Change:             ${stats['price_change']:+,.2f} ({stats['price_change_percent']:+.2f}%)")
+    print(f"Volatility:         ${stats['volatility']:,.2f}")
+    print("-" * 50 + "\n")
 
 # ================ EXPORT FUNCTIONS =====================
 
@@ -240,6 +241,10 @@ def export_to_json(coin_id, hours=24, filename=None):
     """Export statistic in JSON"""
     stats = get_coin_statistics(coin_id, hours)
     history = get_price_history(coin_id, hours)
+
+    if not stats:
+        print("Not result")
+        return
 
     if not filename:
         filename = f" {coin_id}_stats_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
@@ -291,7 +296,7 @@ def main():
     print("\n📡 Get data")
     coins_data = fetch_crypto_data()
 
-    if not coins_data:
+    if coins_data:
         display_current_prices(coins_data)
         print("💾 Saving...")
         save_prices(coins_data)
@@ -301,12 +306,13 @@ def main():
 
     # Export if needed
     if args.export:
-        if args.export in ['CSV', 'both']:
+        if args.export in ['csv', 'both']:
             export_to_csv(args.coin, args.hours)
         if args.export in ['json', 'both']:
             export_to_json(args.coin, args.hours)
 
-    print("✅ Ready!\n")
+    print("✅ Ready!!\n")
+
 
 if __name__ == '__main__':
     main()
