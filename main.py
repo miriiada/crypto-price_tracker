@@ -4,6 +4,9 @@ from datetime import datetime
 import time
 import csv
 import json
+from telegram import Bot
+import asyncio
+import config
 
 # ============== SETTINGS =================
 API_URL = 'https://api.coingecko.com/api/v3/coins/markets'
@@ -263,6 +266,48 @@ def export_to_json(coin_id, hours=24, filename=None):
         print(f"✓ Exporting if {filename}")
         return filename
 
+# =============== TELEGRAM ALERTS ================
+
+async def send_telegram_alert(message):
+    """Send message in Telegram"""
+    try:
+        bot = Bot(token=config.TELEGRAM_TOKEN)
+        await bot.send_message(
+            chat_id=config.TELEGRAM_CHAT_ID,
+            text=message,
+            parse_mode='HTML'
+        )
+        print(f"✓ Alert send in Telegram")
+        return True
+    except Exception as e:
+        print(f"✗ Error Telegram {e}")
+        return False
+
+def check_alerts(coins_data):
+    """Checks conditions for alert"""
+    alerts = []
+
+    for coin in coin_data:
+        change = coin['price_change_percentage_24h']
+
+        # Alert if change exceeds threshold
+        if abs(change) >= config.ALERT_PRICE_CHANGE_PERCENT:
+            direction = "📈 Up" if change > 0 else "📉 Down"
+
+            alert = {
+                'coin': coin['name'],
+                'symbol': coin['symbol'].upper(),
+                'price': coin['current_price'],
+                'change': change,
+                'direction': direction
+            }
+            alerts.append(alert)
+
+    return alerts
+
+async def process_alerts(alerts):
+    """"""
+
 # ================= MAIN ====================
 
 def main():
@@ -311,7 +356,7 @@ def main():
         if args.export in ['json', 'both']:
             export_to_json(args.coin, args.hours)
 
-    print("✅ Ready!!\n")
+    print("✅ Ready!\n")
 
 
 if __name__ == '__main__':
