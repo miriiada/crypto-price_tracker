@@ -53,7 +53,14 @@ Real-time cryptocurrency price monitoring system with Telegram alerts, historica
 
 ## 📊 Screenshots
 
-*Add screenshots here after creating them*
+### Console Output
+![Console](screenshots/console.png)
+
+### Telegram Alerts
+![Telegram](screenshots/telegram_alert.png)
+
+### CSV Export
+![CSV](screenshots/csv_export.png)
 
 ## 🔮 Future Improvements
 
