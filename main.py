@@ -287,7 +287,7 @@ def check_alerts(coins_data):
     """Checks conditions for alert"""
     alerts = []
 
-    for coin in coin_data:
+    for coin in coins_data:
         change = coin['price_change_percentage_24h']
 
         # Alert if change exceeds threshold
@@ -365,7 +365,13 @@ def main():
         print("💾 Saving...")
         save_prices(coins_data)
 
-        print("\n🔔 Check ")
+    # Check alert
+    print("\n🔔 Checking conditions for alerts")
+    alerts = check_alerts(coins_data)
+
+    if alerts:
+        # Start asynco sending
+        asyncio.run(process_alerts(alerts))
 
     # Show statistics for chosen coin
     display_statistics(args.coin, args.hours)
