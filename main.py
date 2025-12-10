@@ -306,7 +306,26 @@ def check_alerts(coins_data):
     return alerts
 
 async def process_alerts(alerts):
-    """"""
+    """Processes and sends alerts"""
+    if not alerts:
+        print("ℹ️  No alerts")
+        return
+
+    print("f🚨 Alerts found: {len(alerts)}")
+
+    for alert in alerts:
+        message = f"""
+🚨 <b>CRYPTO ALERT!</b>
+
+{alert['direction']}       
+<b>{alert['coin']} ({alert['symbol']}</b>
+
+💰 Price: ${alert['price']:,.2f}
+📊 Change: {alert['change']:+.2f}%
+⏰ {datetime.now().strftime('%Y-%m-%d %H:%M')}
+"""
+        await send_telegram_alert(message)
+        await asyncio.sleep(1) # Delay between messages
 
 # ================= MAIN ====================
 
@@ -345,6 +364,8 @@ def main():
         display_current_prices(coins_data)
         print("💾 Saving...")
         save_prices(coins_data)
+
+        print("\n🔔 Check ")
 
     # Show statistics for chosen coin
     display_statistics(args.coin, args.hours)
